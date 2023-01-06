@@ -521,6 +521,7 @@ class Worker:
                 Folder to be rendered. It must be an absolute path within
                 the template.
         """
+        print("In _render_folder =>", str(src_abspath))
         assert src_abspath.is_absolute()
         src_relpath = src_abspath.relative_to(self.template_copy_root)
         dst_relpath = self._render_path(src_relpath)
@@ -547,6 +548,7 @@ class Worker:
             relpath:
                 The relative path to be rendered. Obviously, it can be templated.
         """
+        print("In _render_path =>", str(relpath))
         is_template = relpath.name.endswith(self.template.templates_suffix)
         templated_sibling = (
             self.template.local_abspath / f"{relpath}{self.template.templates_suffix}"
@@ -640,6 +642,11 @@ class Worker:
         """
         print("In run_copy: Run the copy", flush=True)
         was_existing = self.subproject.local_abspath.exists()
+        print(
+            "In run_copy: Checked directory was existing",
+            str(self.subproject.local_abspath),
+            flush=True,
+        )
         src_abspath = self.template_copy_root
         try:
             if not self.quiet:
