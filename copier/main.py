@@ -5,6 +5,7 @@ import os
 import platform
 import subprocess
 import sys
+import time
 from contextlib import suppress
 from dataclasses import asdict, field, replace
 from filecmp import dircmp
@@ -522,12 +523,14 @@ class Worker:
                 the template.
         """
         print("In _render_folder =>", str(src_abspath), flush=True)
+        time.sleep(1)
         assert src_abspath.is_absolute()
         src_relpath = src_abspath.relative_to(self.template_copy_root)
         dst_relpath = self._render_path(src_relpath)
         if dst_relpath is None:
             return
         print("In _render_folder: _render_allowed", flush=True)
+        time.sleep(1)
         if not self._render_allowed(dst_relpath, is_dir=True):
             return
         dst_abspath = Path(self.subproject.local_abspath, dst_relpath)
@@ -549,6 +552,7 @@ class Worker:
                 The relative path to be rendered. Obviously, it can be templated.
         """
         print("In _render_path =>", str(relpath), flush=True)
+        time.sleep(1)
         is_template = relpath.name.endswith(self.template.templates_suffix)
         templated_sibling = (
             self.template.local_abspath / f"{relpath}{self.template.templates_suffix}"
@@ -647,6 +651,7 @@ class Worker:
             str(self.subproject.local_abspath),
             flush=True,
         )
+        time.sleep(1)
         src_abspath = self.template_copy_root
         try:
             if not self.quiet:
@@ -656,15 +661,18 @@ class Worker:
                     file=sys.stderr,
                 )
             print("In run_copy: _render_folder", flush=True)
+            time.sleep(1)
             self._render_folder(src_abspath)
             if not self.quiet:
                 # TODO Unify printing tools
                 print("")  # padding space
             print("In run_copy: _execute_tasks", flush=True)
+            time.sleep(1)
             self._execute_tasks(self.template.tasks)
         except Exception:
             if not was_existing and self.cleanup_on_error:
                 print("In run_copy: rmtree", flush=True)
+                time.sleep(1)
                 rmtree(self.subproject.local_abspath)
             raise
         if not self.quiet:
