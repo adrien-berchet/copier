@@ -432,20 +432,27 @@ class Worker:
 
         Respects template settings.
         """
+        p = psutil.Process()
+        print("In jinja_env", flush=True, file=sys.stderr)
+        print("In jinja_env: RAM Used (GB):", p.memory_info().vms / 1e9)
         paths = [str(self.template.local_abspath)]
         loader = FileSystemLoader(paths)
+        print("In jinja_env: RAM Used (GB):", p.memory_info().vms / 1e9)
         default_extensions = [
             "jinja2_ansible_filters.AnsibleCoreFiltersExtension",
         ]
+        print("In jinja_env: RAM Used (GB):", p.memory_info().vms / 1e9)
         extensions = default_extensions + list(self.template.jinja_extensions)
         # We want to minimize the risk of hidden malware in the templates
         # so we use the SandboxedEnvironment instead of the regular one.
         # Of course we still have the post-copy tasks to worry about, but at least
         # they are more visible to the final user.
         try:
+            print("In jinja_env: RAM Used (GB):", p.memory_info().vms / 1e9)
             env = SandboxedEnvironment(
                 loader=loader, extensions=extensions, **self.template.envops
             )
+            print("In jinja_env: RAM Used (GB):", p.memory_info().vms / 1e9)
         except ModuleNotFoundError as error:
             raise ExtensionNotFoundError(
                 f"Copier could not load some Jinja extensions:\n{error}\n"
@@ -456,6 +463,7 @@ class Worker:
         env.filters["to_json"] = partial(
             env.filters["to_json"], default=pydantic_encoder
         )
+        print("In jinja_env: RAM Used (GB):", p.memory_info().vms / 1e9)
         return env
 
     @cached_property
@@ -609,7 +617,9 @@ class Worker:
             string:
                 The template source string.
         """
+        print("In _render_string:", str(string), flush=True, file=sys.stderr)
         tpl = self.jinja_env.from_string(string)
+        print("In _render_string:", str(string), flush=True, file=sys.stderr)
         return tpl.render(**self._render_context())
 
     @cached_property
@@ -636,7 +646,15 @@ class Worker:
 
         It points to the cloned template local abspath + the rendered subdir, if any.
         """
+        p = psutil.Process()
+        print(
+            "In template_copy_root",
+            flush=True,
+            file=sys.stderr,
+        )
+        print("In template_copy_root: RAM Used (GB):", p.memory_info().vms / 1e9)
         subdir = self._render_string(self.template.subdirectory) or ""
+        print("In template_copy_root: RAM Used (GB):", p.memory_info().vms / 1e9)
         return self.template.local_abspath / subdir
 
     # Main operations
@@ -674,8 +692,11 @@ class Worker:
             file=sys.stderr,
         )
         time.sleep(1)
+        print("In run_copy: RAM Used (GB):", p.memory_info().vms / 1e9)
         src_abspath = self.template_copy_root
+        print("In run_copy: RAM Used (GB):", p.memory_info().vms / 1e9)
         try:
+            print("In run_copy: RAM Used (GB):", p.memory_info().vms / 1e9)
             if not self.quiet:
                 # TODO Unify printing tools
                 print(
