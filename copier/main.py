@@ -521,13 +521,13 @@ class Worker:
                 Folder to be rendered. It must be an absolute path within
                 the template.
         """
-        print("In _render_folder =>", str(src_abspath))
+        print("In _render_folder =>", str(src_abspath), flush=True)
         assert src_abspath.is_absolute()
         src_relpath = src_abspath.relative_to(self.template_copy_root)
         dst_relpath = self._render_path(src_relpath)
         if dst_relpath is None:
             return
-        print("In _render_folder: _render_allowed")
+        print("In _render_folder: _render_allowed", flush=True)
         if not self._render_allowed(dst_relpath, is_dir=True):
             return
         dst_abspath = Path(self.subproject.local_abspath, dst_relpath)
@@ -535,10 +535,10 @@ class Worker:
             dst_abspath.mkdir(parents=True, exist_ok=True)
         for file in src_abspath.iterdir():
             if file.is_dir():
-                print("In _render_folder: _render_folder for ", file)
+                print("In _render_folder: _render_folder for ", str(file), flush=True)
                 self._render_folder(file)
             else:
-                print("In _render_folder: _render_file for ", file)
+                print("In _render_folder: _render_file for ", str(file), flush=True)
                 self._render_file(file)
 
     def _render_path(self, relpath: Path) -> Optional[Path]:
@@ -548,7 +548,7 @@ class Worker:
             relpath:
                 The relative path to be rendered. Obviously, it can be templated.
         """
-        print("In _render_path =>", str(relpath))
+        print("In _render_path =>", str(relpath), flush=True)
         is_template = relpath.name.endswith(self.template.templates_suffix)
         templated_sibling = (
             self.template.local_abspath / f"{relpath}{self.template.templates_suffix}"
