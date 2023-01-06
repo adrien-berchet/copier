@@ -526,6 +526,7 @@ class Worker:
         dst_relpath = self._render_path(src_relpath)
         if dst_relpath is None:
             return
+        print("In _render_folder: _render_allowed")
         if not self._render_allowed(dst_relpath, is_dir=True):
             return
         dst_abspath = Path(self.subproject.local_abspath, dst_relpath)
@@ -533,8 +534,10 @@ class Worker:
             dst_abspath.mkdir(parents=True, exist_ok=True)
         for file in src_abspath.iterdir():
             if file.is_dir():
+                print("In _render_folder: _render_folder for ", file)
                 self._render_folder(file)
             else:
+                print("In _render_folder: _render_file for ", file)
                 self._render_file(file)
 
     def _render_path(self, relpath: Path) -> Optional[Path]:
@@ -635,6 +638,7 @@ class Worker:
 
         See [generating a project][generating-a-project].
         """
+        print("Run the copy")
         was_existing = self.subproject.local_abspath.exists()
         src_abspath = self.template_copy_root
         try:
@@ -644,13 +648,16 @@ class Worker:
                     f"\nCopying from template version {self.template.version}",
                     file=sys.stderr,
                 )
+            print("_render_folder", flush=True)
             self._render_folder(src_abspath)
             if not self.quiet:
                 # TODO Unify printing tools
                 print("")  # padding space
+            print("_execute_tasks", flush=True)
             self._execute_tasks(self.template.tasks)
         except Exception:
             if not was_existing and self.cleanup_on_error:
+                print("rmtree", flush=True)
                 rmtree(self.subproject.local_abspath)
             raise
         if not self.quiet:
