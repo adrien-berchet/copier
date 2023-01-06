@@ -638,7 +638,7 @@ class Worker:
 
         See [generating a project][generating-a-project].
         """
-        print("Run the copy")
+        print("In run_copy: Run the copy", flush=True)
         was_existing = self.subproject.local_abspath.exists()
         src_abspath = self.template_copy_root
         try:
@@ -648,16 +648,16 @@ class Worker:
                     f"\nCopying from template version {self.template.version}",
                     file=sys.stderr,
                 )
-            print("_render_folder", flush=True)
+            print("In run_copy: _render_folder", flush=True)
             self._render_folder(src_abspath)
             if not self.quiet:
                 # TODO Unify printing tools
                 print("")  # padding space
-            print("_execute_tasks", flush=True)
+            print("In run_copy: _execute_tasks", flush=True)
             self._execute_tasks(self.template.tasks)
         except Exception:
             if not was_existing and self.cleanup_on_error:
-                print("rmtree", flush=True)
+                print("In run_copy: rmtree", flush=True)
                 rmtree(self.subproject.local_abspath)
             raise
         if not self.quiet:
