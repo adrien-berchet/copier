@@ -522,14 +522,14 @@ class Worker:
                 Folder to be rendered. It must be an absolute path within
                 the template.
         """
-        print("In _render_folder =>", str(src_abspath), flush=True)
+        print("In _render_folder =>", str(src_abspath), flush=True, file=sys.stderr)
         time.sleep(1)
         assert src_abspath.is_absolute()
         src_relpath = src_abspath.relative_to(self.template_copy_root)
         dst_relpath = self._render_path(src_relpath)
         if dst_relpath is None:
             return
-        print("In _render_folder: _render_allowed", flush=True)
+        print("In _render_folder: _render_allowed", flush=True, file=sys.stderr)
         time.sleep(1)
         if not self._render_allowed(dst_relpath, is_dir=True):
             return
@@ -538,10 +538,20 @@ class Worker:
             dst_abspath.mkdir(parents=True, exist_ok=True)
         for file in src_abspath.iterdir():
             if file.is_dir():
-                print("In _render_folder: _render_folder for ", str(file), flush=True)
+                print(
+                    "In _render_folder: _render_folder for ",
+                    str(file),
+                    flush=True,
+                    file=sys.stderr,
+                )
                 self._render_folder(file)
             else:
-                print("In _render_folder: _render_file for ", str(file), flush=True)
+                print(
+                    "In _render_folder: _render_file for ",
+                    str(file),
+                    flush=True,
+                    file=sys.stderr,
+                )
                 self._render_file(file)
 
     def _render_path(self, relpath: Path) -> Optional[Path]:
@@ -551,7 +561,7 @@ class Worker:
             relpath:
                 The relative path to be rendered. Obviously, it can be templated.
         """
-        print("In _render_path =>", str(relpath), flush=True)
+        print("In _render_path =>", str(relpath), flush=True, file=sys.stderr)
         time.sleep(1)
         is_template = relpath.name.endswith(self.template.templates_suffix)
         templated_sibling = (
@@ -644,12 +654,13 @@ class Worker:
 
         See [generating a project][generating-a-project].
         """
-        print("In run_copy: Run the copy", flush=True)
+        print("In run_copy: Run the copy", flush=True, file=sys.stderr)
         was_existing = self.subproject.local_abspath.exists()
         print(
             "In run_copy: Checked directory was existing",
             str(self.subproject.local_abspath),
             flush=True,
+            file=sys.stderr,
         )
         time.sleep(1)
         src_abspath = self.template_copy_root
@@ -660,18 +671,18 @@ class Worker:
                     f"\nCopying from template version {self.template.version}",
                     file=sys.stderr,
                 )
-            print("In run_copy: _render_folder", flush=True)
+            print("In run_copy: _render_folder", flush=True, file=sys.stderr)
             time.sleep(1)
             self._render_folder(src_abspath)
             if not self.quiet:
                 # TODO Unify printing tools
                 print("")  # padding space
-            print("In run_copy: _execute_tasks", flush=True)
+            print("In run_copy: _execute_tasks", flush=True, file=sys.stderr)
             time.sleep(1)
             self._execute_tasks(self.template.tasks)
         except Exception:
             if not was_existing and self.cleanup_on_error:
-                print("In run_copy: rmtree", flush=True)
+                print("In run_copy: rmtree", flush=True, file=sys.stderr)
                 time.sleep(1)
                 rmtree(self.subproject.local_abspath)
             raise
