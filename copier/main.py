@@ -433,7 +433,7 @@ class Worker:
         Respects template settings.
         """
         p = psutil.Process()
-        print("In jinja_env", flush=True, file=sys.stderr)
+        print("In jinja_env", flush=True)
         print("In jinja_env: RAM Used (GB):", p.memory_info().vms / 1e9)
         paths = [str(self.template.local_abspath)]
         loader = FileSystemLoader(paths)
@@ -532,7 +532,7 @@ class Worker:
                 the template.
         """
         p = psutil.Process()
-        print("In _render_folder =>", str(src_abspath), flush=True, file=sys.stderr)
+        print("In _render_folder =>", str(src_abspath), flush=True)
         print("In _render_folder: RAM Used (GB):", p.memory_info().vms / 1e9)
         time.sleep(1)
         assert src_abspath.is_absolute()
@@ -540,7 +540,7 @@ class Worker:
         dst_relpath = self._render_path(src_relpath)
         if dst_relpath is None:
             return
-        print("In _render_folder: _render_allowed", flush=True, file=sys.stderr)
+        print("In _render_folder: _render_allowed", flush=True)
         print("In _render_folder: RAM Used (GB):", p.memory_info().vms / 1e9)
         time.sleep(1)
         if not self._render_allowed(dst_relpath, is_dir=True):
@@ -554,7 +554,6 @@ class Worker:
                     "In _render_folder: _render_folder for ",
                     str(file),
                     flush=True,
-                    file=sys.stderr,
                 )
                 print("In _render_folder: RAM Used (GB):", p.memory_info().vms / 1e9)
                 self._render_folder(file)
@@ -563,7 +562,6 @@ class Worker:
                     "In _render_folder: _render_file for ",
                     str(file),
                     flush=True,
-                    file=sys.stderr,
                 )
                 print("In _render_folder: RAM Used (GB):", p.memory_info().vms / 1e9)
                 self._render_file(file)
@@ -576,7 +574,7 @@ class Worker:
                 The relative path to be rendered. Obviously, it can be templated.
         """
         p = psutil.Process()
-        print("In _render_path =>", str(relpath), flush=True, file=sys.stderr)
+        print("In _render_path =>", str(relpath), flush=True)
         print("In _render_path: RAM Used (GB):", p.memory_info().vms / 1e9)
         time.sleep(1)
         is_template = relpath.name.endswith(self.template.templates_suffix)
@@ -617,9 +615,9 @@ class Worker:
             string:
                 The template source string.
         """
-        print("In _render_string:", str(string), flush=True, file=sys.stderr)
+        print("In _render_string:", str(string), flush=True)
         tpl = self.jinja_env.from_string(string)
-        print("In _render_string:", str(string), flush=True, file=sys.stderr)
+        print("In _render_string:", str(string), flush=True)
         return tpl.render(**self._render_context())
 
     @cached_property
@@ -634,10 +632,13 @@ class Worker:
     def template(self) -> Template:
         """Get related template."""
         url = self.src_path
+        p = psutil.Process()
+        print("In template: RAM Used (GB):", p.memory_info().vms / 1e9)
         if not url:
             if self.subproject.template is None:
                 raise TypeError("Template not found")
             url = str(self.subproject.template.url)
+        print("In template: RAM Used (GB):", p.memory_info().vms / 1e9)
         return Template(url=url, ref=self.vcs_ref, use_prereleases=self.use_prereleases)
 
     @cached_property
@@ -650,7 +651,6 @@ class Worker:
         print(
             "In template_copy_root",
             flush=True,
-            file=sys.stderr,
         )
         print("In template_copy_root: RAM Used (GB):", p.memory_info().vms / 1e9)
         template_sub_dir = self.template.subdirectory
@@ -683,7 +683,7 @@ class Worker:
         See [generating a project][generating-a-project].
         """
         p = psutil.Process()
-        print("In run_copy: Run the copy", flush=True, file=sys.stderr)
+        print("In run_copy: Run the copy", flush=True)
         print("In run_copy: RAM Used (GB):", p.memory_info().vms / 1e9)
         was_existing = self.subproject.local_abspath.exists()
         print("In run_copy: RAM Used (GB):", p.memory_info().vms / 1e9)
@@ -691,7 +691,6 @@ class Worker:
             "In run_copy: Checked directory was existing",
             str(self.subproject.local_abspath),
             flush=True,
-            file=sys.stderr,
         )
         time.sleep(1)
         print("In run_copy: RAM Used (GB):", p.memory_info().vms / 1e9)
@@ -703,22 +702,21 @@ class Worker:
                 # TODO Unify printing tools
                 print(
                     f"\nCopying from template version {self.template.version}",
-                    file=sys.stderr,
                 )
-            print("In run_copy: _render_folder", flush=True, file=sys.stderr)
+            print("In run_copy: _render_folder", flush=True)
             print("In run_copy: RAM Used (GB):", p.memory_info().vms / 1e9)
             time.sleep(1)
             self._render_folder(src_abspath)
             if not self.quiet:
                 # TODO Unify printing tools
                 print("")  # padding space
-            print("In run_copy: _execute_tasks", flush=True, file=sys.stderr)
+            print("In run_copy: _execute_tasks", flush=True)
             print("In run_copy: RAM Used (GB):", p.memory_info().vms / 1e9)
             time.sleep(1)
             self._execute_tasks(self.template.tasks)
         except Exception:
             if not was_existing and self.cleanup_on_error:
-                print("In run_copy: rmtree", flush=True, file=sys.stderr)
+                print("In run_copy: rmtree", flush=True)
                 time.sleep(1)
                 rmtree(self.subproject.local_abspath)
             raise
