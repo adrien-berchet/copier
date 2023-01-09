@@ -11,6 +11,7 @@ from warnings import warn
 
 import dunamai
 import packaging.version
+import psutil
 import yaml
 from funcy import lflatten
 from packaging.version import Version, parse
@@ -270,9 +271,13 @@ class Template:
         It reads [the `copier.yml` file][the-copieryml-file] to get its
         [settings][available-settings].
         """
+        p = psutil.Process()
+        print("In Template.config_data: RAM Used (GB):", p.memory_info().vms / 1e9)
         result = filter_config(self._raw_config)[0]
+        print("In Template.config_data: RAM Used (GB):", p.memory_info().vms / 1e9)
         with suppress(KeyError):
             verify_copier_version(result["min_copier_version"])
+        print("In Template.config_data: RAM Used (GB):", p.memory_info().vms / 1e9)
         return result
 
     @cached_property

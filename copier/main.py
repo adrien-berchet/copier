@@ -634,10 +634,14 @@ class Worker:
         url = self.src_path
         p = psutil.Process()
         print("In template: RAM Used (GB):", p.memory_info().vms / 1e9)
+        subproject = self.subproject
+        print("In template: RAM Used (GB):", p.memory_info().vms / 1e9)
+        subproject_template = subproject.template
+        print("In template: RAM Used (GB):", p.memory_info().vms / 1e9)
         if not url:
-            if self.subproject.template is None:
+            if subproject_template is None:
                 raise TypeError("Template not found")
-            url = str(self.subproject.template.url)
+            url = str(subproject_template.url)
         print("In template: RAM Used (GB):", p.memory_info().vms / 1e9)
         return Template(url=url, ref=self.vcs_ref, use_prereleases=self.use_prereleases)
 
@@ -653,7 +657,9 @@ class Worker:
             flush=True,
         )
         print("In template_copy_root: RAM Used (GB):", p.memory_info().vms / 1e9)
-        template_sub_dir = self.template.subdirectory
+        template = self.template
+        print("In template_copy_root: RAM Used (GB):", p.memory_info().vms / 1e9)
+        template_sub_dir = template.subdirectory
         print("In template_copy_root: RAM Used (GB):", p.memory_info().vms / 1e9)
         subdir = self._render_string(template_sub_dir) or ""
         print("In template_copy_root: RAM Used (GB):", p.memory_info().vms / 1e9)
