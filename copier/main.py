@@ -653,7 +653,9 @@ class Worker:
             file=sys.stderr,
         )
         print("In template_copy_root: RAM Used (GB):", p.memory_info().vms / 1e9)
-        subdir = self._render_string(self.template.subdirectory) or ""
+        template_sub_dir = self.template.subdirectory
+        print("In template_copy_root: RAM Used (GB):", p.memory_info().vms / 1e9)
+        subdir = self._render_string(template_sub_dir) or ""
         print("In template_copy_root: RAM Used (GB):", p.memory_info().vms / 1e9)
         return self.template.local_abspath / subdir
 
