@@ -89,13 +89,17 @@ def load_template_config(conf_path: Path, quiet: bool = False) -> AnyByStrDict:
     Raises:
         InvalidConfigFileError: When the file is formatted badly.
     """
+    p = psutil.Process()
+    print("In load_template_config: RAM Used (GB):", p.memory_info().vms / 1e9)
     YamlIncludeConstructor.add_to_loader_class(
         loader_class=yaml.FullLoader, base_dir=conf_path.parent
     )
+    print("In load_template_config: RAM Used (GB):", p.memory_info().vms / 1e9)
 
     try:
         with open(conf_path) as f:
             flattened_result = lflatten(yaml.load_all(f, Loader=yaml.FullLoader))
+            print("In load_template_config: RAM Used (GB):", p.memory_info().vms / 1e9)
             merged_options = defaultdict(list)
             for option in (
                 "_exclude",
@@ -110,6 +114,7 @@ def load_template_config(conf_path: Path, quiet: bool = False) -> AnyByStrDict:
                         pass
                     else:
                         merged_options[option].extend(values)
+            print("In load_template_config: RAM Used (GB):", p.memory_info().vms / 1e9)
             return dict(ChainMap(dict(merged_options), *reversed(flattened_result)))
     except yaml.parser.ParserError as e:
         raise InvalidConfigFileError(conf_path, quiet) from e
@@ -228,15 +233,19 @@ class Template:
 
         It reads [the `copier.yml` file][the-copieryml-file].
         """
+        p = psutil.Process()
+        print("In Template._raw_config: RAM Used (GB):", p.memory_info().vms / 1e9)
         conf_paths = [
             p
             for p in self.local_abspath.glob("copier.*")
             if p.is_file() and re.match(r"\.ya?ml", p.suffix, re.I)
         ]
+        print("In Template._raw_config: RAM Used (GB):", p.memory_info().vms / 1e9)
         if len(conf_paths) > 1:
             raise MultipleConfigFilesError(conf_paths)
         elif len(conf_paths) == 1:
             return load_template_config(conf_paths[0])
+        print("In Template._raw_config: RAM Used (GB):", p.memory_info().vms / 1e9)
         return {}
 
     @cached_property
@@ -447,13 +456,24 @@ class Template:
         This may clone it if `url` points to a VCS-tracked template.
         Dirty changes for local VCS-tracked templates will be copied.
         """
+        p = psutil.Process()
+        print("In Template.local_abspath: RAM Used (GB):", p.memory_info().vms / 1e9)
         result = Path(self.url)
+        print("In Template.local_abspath: RAM Used (GB):", p.memory_info().vms / 1e9)
         if self.vcs == "git":
             result = Path(clone(self.url_expanded, self.ref))
+            print(
+                "In Template.local_abspath: RAM Used (GB):", p.memory_info().vms / 1e9
+            )
             if self.ref is None:
                 checkout_latest_tag(result, self.use_prereleases)
+                print(
+                    "In Template.local_abspath: RAM Used (GB):",
+                    p.memory_info().vms / 1e9,
+                )
         if not result.is_dir():
             raise ValueError("Local template must be a directory.")
+        print("In Template.local_abspath: RAM Used (GB):", p.memory_info().vms / 1e9)
         return result.absolute()
 
     @cached_property
