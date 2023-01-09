@@ -149,7 +149,11 @@ def clone(url: str, ref: OptStr = None) -> str:
     _clone = git["clone", "--no-checkout", url, location]
     print("In vcs.clone: RAM Used (GB):", p.memory_info().vms / 1e9)
     # Faster clones if possible
-    if GIT_VERSION >= Version("2.27"):
+    if (
+        GIT_VERSION >= Version("2.27")
+        and not url.startswith("file://")
+        and not Path(url).exists()
+    ):
         _clone = _clone["--filter=blob:none"]
     print("In vcs.clone: _clone:", str(_clone))
     print("In vcs.clone: type(_clone):", type(_clone))

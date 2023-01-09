@@ -67,6 +67,17 @@ def test_clone():
     shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_local_clone():
+    tmp = vcs.clone("https://github.com/copier-org/copier.git")
+    assert tmp
+    assert exists(join(tmp, "README.md"))
+
+    local_tmp = vcs.clone(str(tmp))
+    assert local_tmp
+    assert exists(join(local_tmp, "README.md"))
+    shutil.rmtree(local_tmp, ignore_errors=True)
+
+
 def test_removes_temporary_clone(tmp_path):
     src_path = "https://github.com/copier-org/autopretty.git"
     with Worker(src_path=src_path, dst_path=tmp_path, defaults=True) as worker:
