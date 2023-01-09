@@ -118,7 +118,8 @@ plugins = ["pydantic.mypy"]
 warn_no_return = false
 
 [tool.pytest.ini_options]
-addopts = "-n auto -ra"
+# addopts = "-n auto -ra"
+addopts = "-ra"
 
 [tool.commitizen]
 annotated_tag = true
