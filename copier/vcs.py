@@ -152,6 +152,7 @@ def clone(url: str, ref: OptStr = None) -> str:
     if GIT_VERSION >= Version("2.27"):
         _clone = _clone["--filter=blob:none"]
     print("In vcs.clone: _clone:", str(_clone))
+    print("In vcs.clone: type(_clone):", type(_clone))
     _clone()
     print("In vcs.clone: RAM Used (GB):", p.memory_info().vms / 1e9)
 
