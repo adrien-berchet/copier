@@ -7,6 +7,7 @@ from pathlib import Path
 from tempfile import mkdtemp
 from warnings import warn
 
+import psutil
 from packaging import version
 from packaging.version import Version
 from plumbum import TF, ProcessExecutionError, colors, local
@@ -71,9 +72,12 @@ def get_repo(url: str) -> OptStr:
             - ~/path/to/git/repo
             - ~/path/to/git/repo.bundle
     """
+    p = psutil.Process()
+    print("In vcs.get_repo: RAM Used (GB):", p.memory_info().vms / 1e9)
     for pattern, replacement in REPLACEMENTS:
         url = re.sub(pattern, replacement, url)
 
+    print("In vcs.get_repo: RAM Used (GB):", p.memory_info().vms / 1e9)
     if url.endswith(GIT_POSTFIX) or url.startswith(GIT_PREFIX):
         if url.startswith("git+"):
             url = url[4:]
@@ -81,13 +85,17 @@ def get_repo(url: str) -> OptStr:
             url = "".join((url, GIT_POSTFIX))
         return url
 
+    print("In vcs.get_repo: RAM Used (GB):", p.memory_info().vms / 1e9)
     url_path = Path(url)
     if url.startswith("~"):
         url_path = url_path.expanduser()
 
+    print("In vcs.get_repo: RAM Used (GB):", p.memory_info().vms / 1e9)
+    print("In vcs.get_repo: url_path =", str(url_path))
     if is_git_repo_root(url_path) or is_git_bundle(url_path):
         return url_path.as_posix()
 
+    print("In vcs.get_repo: RAM Used (GB):", p.memory_info().vms / 1e9)
     return None
 
 
