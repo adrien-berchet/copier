@@ -141,18 +141,25 @@ def clone(url: str, ref: OptStr = None) -> str:
         ref:
             Reference to checkout. For Git repos, defaults to `HEAD`.
     """
+    p = psutil.Process()
+    print("In vcs.clone: RAM Used (GB):", p.memory_info().vms / 1e9)
 
     location = mkdtemp(prefix=f"{__name__}.clone.")
+    print("In vcs.clone: RAM Used (GB):", p.memory_info().vms / 1e9)
     _clone = git["clone", "--no-checkout", url, location]
+    print("In vcs.clone: RAM Used (GB):", p.memory_info().vms / 1e9)
     # Faster clones if possible
     if GIT_VERSION >= Version("2.27"):
         _clone = _clone["--filter=blob:none"]
     _clone()
+    print("In vcs.clone: RAM Used (GB):", p.memory_info().vms / 1e9)
 
     if not ref and os.path.exists(url) and Path(url).is_dir():
+        print("In vcs.clone: RAM Used (GB):", p.memory_info().vms / 1e9)
         is_dirty = False
         with local.cwd(url):
             is_dirty = bool(git("status", "--porcelain").strip())
+        print("In vcs.clone: RAM Used (GB):", p.memory_info().vms / 1e9)
         if is_dirty:
             url_abspath = Path(url).absolute()
             with local.cwd(location):
@@ -170,6 +177,7 @@ def clone(url: str, ref: OptStr = None) -> str:
                     DirtyLocalWarning,
                 )
 
+    print("In vcs.clone: RAM Used (GB):", p.memory_info().vms / 1e9)
     with local.cwd(location):
         git("checkout", ref or "HEAD")
         git("submodule", "update", "--checkout", "--init", "--recursive", "--force")
